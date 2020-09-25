@@ -12,13 +12,14 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'listen':
-        print("running dht webthing on port " + str(args.port) + "/gpio " + str(args.gpio))
+        print("running eltako ws webthing on port " + str(args.port) + "/gpio " + str(args.gpio))
+        print("running eltako ws webthing on port " + str(args.port) + "/gpio " + str(args.gpio))
         run_server(args.port, args.gpio)
     elif args.command == 'register':
-        print("register dht webthing service on port " + str(args.port) + "/gpio " + str(args.gpio) + " and starting it")
-        register('pi_dht_webthing', int(args.port), int(args.gpio))
+        print("register eltako ws webthing service on port " + str(args.port) + "/gpio " + str(args.gpio) + " and starting it")
+        register('pi_eltakows_webthing', int(args.port), int(args.gpio))
     elif args.command == 'deregister':
-        print("deregister dht webthing service on port " + str(args.port))
+        print("deregister eltako ws webthing service on port " + str(args.port))
         deregister('pi_eltakows_webthing', int(args.port))
     else:
         print("usage dht --help")
