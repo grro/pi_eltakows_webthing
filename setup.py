@@ -23,7 +23,7 @@ setup(
     url='https://github.com/grro/pi_eltakows_webthing',
     entry_points={
         'console_scripts': [
-            'dht=pi_eltakows_webthing:main'
+            'eltakows=pi_eltakows_webthing:main'
         ]
     },
     keywords=[
