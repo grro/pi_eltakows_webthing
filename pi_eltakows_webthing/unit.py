@@ -10,7 +10,7 @@ After=syslog.target
 
 [Service]
 Type=simple
-ExecStart=dht --command listen --port $port --gpio $gpio_number
+ExecStart=eltakows --command listen --port $port --gpio $gpio_number
 SyslogIdentifier=$packagename
 StandardOutput=syslog
 StandardError=syslog
