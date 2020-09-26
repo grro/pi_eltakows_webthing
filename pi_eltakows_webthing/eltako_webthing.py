@@ -2,6 +2,7 @@ from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import logging
 import tornado.ioloop
 import RPi.GPIO as GPIO
+import pi_eltakows_webthing.settings as SETTINGS
 
 
 class EltakoWsSensor(Thing):
@@ -9,13 +10,13 @@ class EltakoWsSensor(Thing):
     # regarding capabilities refer https://iot.mozilla.org/schemas
     # there is also another schema registry http://iotschema.org/docs/full.html not used by webthing
 
-    def __init__(self, gpio_number):
+    def __init__(self, gpio_number, description):
         Thing.__init__(
             self,
             'urn:dev:ops:eltakowsSensor-1',
             'Windsensor',
             [],
-            'A web connected windsensor measuring wind speed'
+            description
         )
 
         self.gpio_number = gpio_number
@@ -58,15 +59,14 @@ class EltakoWsSensor(Thing):
         km_per_hour = 1.761 / (1 + rotation_per_sec) + 3.813 * rotation_per_sec
         if km_per_hour < 2:
             km_per_hour = 0
-        return round(km_per_hour,1)
-
+        return round(km_per_hour, 1)
 
     def cancel_update_level_task(self):
         self.timer.stop()
 
 
 def run_server(port, gpio_number):
-    eltakows_sensor = EltakoWsSensor(gpio_number)
+    eltakows_sensor = EltakoWsSensor(gpio_number, SETTINGS.DESCRIPTION)
     server = WebThingServer(SingleThing(eltakows_sensor), port=port)
     try:
         logging.info('starting the server')
