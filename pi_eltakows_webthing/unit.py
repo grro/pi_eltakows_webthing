@@ -1,8 +1,6 @@
 import pathlib
 from os import system, remove
 from string import Template
-import pi_eltakows_webthing.settings as SETTINGS
-
 
 UNIT_TEMPLATE = Template('''
 [Unit]
@@ -23,9 +21,9 @@ WantedBy=multi-user.target
 ''')
 
 
-def register(port, gpio_number):
-    unit = UNIT_TEMPLATE.substitute(packagename=SETTINGS.PACKAGENAME, entrypoint=SETTINGS.ENTRY_POINT, port=port, gpio_number=gpio_number)
-    service = SETTINGS.PACKAGENAME + "_" + str(port) + ".service"
+def register(packagename, entrypoint, port, gpio_number):
+    unit = UNIT_TEMPLATE.substitute(packagename=packagename, entrypoint=entrypoint, port=port, gpio_number=gpio_number)
+    service = packagename + "_" + str(port) + ".service"
     unit_file_fullname = str(pathlib.Path("/", "etc", "systemd", "system", service))
     with open(unit_file_fullname, "w") as file:
         file.write(unit)
@@ -35,10 +33,10 @@ def register(port, gpio_number):
     system("sudo systemctl status " + service)
 
 
-def deregister(port):
-    print("deregister " + SETTINGS.PACKAGENAME + " on port " + str(port))
+def deregister(packagename, port):
+    print("deregister " + packagename + " on port " + str(port))
 
-    service = SETTINGS.PACKAGENAME + "_" + str(port) + ".service"
+    service = packagename + "_" + str(port) + ".service"
     unit_file_fullname = str(pathlib.Path("/", "etc", "systemd", "system", service))
     system("sudo systemctl stop " + service)
     system("sudo systemctl disable " + service)

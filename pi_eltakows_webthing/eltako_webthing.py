@@ -2,7 +2,6 @@ from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import logging
 import tornado.ioloop
 import RPi.GPIO as GPIO
-import pi_eltakows_webthing.settings as SETTINGS
 
 
 class EltakoWsSensor(Thing):
@@ -65,8 +64,8 @@ class EltakoWsSensor(Thing):
         self.timer.stop()
 
 
-def run_server(port, gpio_number):
-    eltakows_sensor = EltakoWsSensor(gpio_number, SETTINGS.DESCRIPTION)
+def run_server(port, gpio_number, description):
+    eltakows_sensor = EltakoWsSensor(gpio_number, description)
     server = WebThingServer(SingleThing(eltakows_sensor), port=port)
     try:
         logging.info('starting the server')
