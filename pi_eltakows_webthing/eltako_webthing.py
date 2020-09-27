@@ -1,7 +1,8 @@
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
-import logging
 import tornado.ioloop
 import RPi.GPIO as GPIO
+import logging
+
 
 
 class EltakoWsSensor(Thing):
@@ -56,7 +57,7 @@ class EltakoWsSensor(Thing):
     def __compute_speed_kmh(self, imp_per_sec):
         rotation_per_sec = imp_per_sec / 2
         km_per_hour = 1.761 / (1 + rotation_per_sec) + 3.813 * rotation_per_sec
-        if km_per_hour < 2:
+        if km_per_hour < 1:
             km_per_hour = 0
         return round(km_per_hour, 1)
 
