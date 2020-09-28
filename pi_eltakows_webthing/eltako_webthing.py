@@ -2,6 +2,7 @@ from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import RPi.GPIO as GPIO
 import logging
 import time
+import tornado.ioloop
 
 
 class EltakoWsSensor(Thing):
@@ -22,9 +23,12 @@ class EltakoWsSensor(Thing):
         self.slot_sec = 20
         self.start_time = time.time()
         self.imp = 0
+        self.windspeed_kmh = 0
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.gpio_number, GPIO.IN)
         GPIO.add_event_detect(self.gpio_number, GPIO.BOTH, callback=self.__spin, bouncetime=5)
+
+        self.loop = tornado.ioloop.IOLoop.current()
 
         self.windspeed = Value(0.0)
         self.add_property(
@@ -40,16 +44,14 @@ class EltakoWsSensor(Thing):
                          'readOnly': True,
                      }))
 
-        logging.debug('starting the sensor update looping task')
-
     def __spin(self, channel):
         self.imp = self.imp + 1
         elapsed_sec = time.time() - self.start_time
         if elapsed_sec > self.slot_sec:
-            windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
-            self.windspeed.notify_of_external_update(windspeed_kmh)
+            self.windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
             self.imp = 0
             self.start_time = time.time()
+            self.loop.add_timeout(4000, self.__broadcast)
 
     def __compute_speed_kmh(self, imp, elapsed_sec):
         imp_per_15_sec = imp / elapsed_sec
@@ -58,6 +60,9 @@ class EltakoWsSensor(Thing):
         if km_per_hour < 1:
             km_per_hour = 0
         return round(km_per_hour, 1)
+
+    def __broadcast(self):
+        self.windspeed.notify_of_external_update(self.windspeed_kmh)
 
 
 def run_server(port, gpio_number, description):
