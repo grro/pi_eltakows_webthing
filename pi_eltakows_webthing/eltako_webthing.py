@@ -20,15 +20,13 @@ class EltakoWsSensor(Thing):
         )
 
         self.gpio_number = gpio_number
-        self.slot_sec = 20
         self.start_time = time.time()
         self.imp = 0
-        self.windspeed_kmh = 0
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.gpio_number, GPIO.IN)
         GPIO.add_event_detect(self.gpio_number, GPIO.BOTH, callback=self.__spin, bouncetime=5)
 
-        self.loop = tornado.ioloop.IOLoop.current()
+        self.timer = tornado.ioloop.PeriodicCallback(self.__measure, 10000)
 
         self.windspeed = Value(0.0)
         self.add_property(
@@ -43,27 +41,28 @@ class EltakoWsSensor(Thing):
                          'unit': 'km/h',
                          'readOnly': True,
                      }))
+        self.timer.start()
 
     def __spin(self, channel):
         self.imp = self.imp + 1
+
+    def __measure(self):
         elapsed_sec = time.time() - self.start_time
-        if elapsed_sec > self.slot_sec:
-            self.windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
-            self.imp = 0
-            self.start_time = time.time()
-            self.loop.add_timeout(4000, self.__broadcast)
+        windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
+        self.imp = 0
+        self.start_time = time.time()
+        logging.info('windspeed ' + str(windspeed_kmh))
+        self.windspeed.notify_of_external_update(windspeed_kmh)
 
     def __compute_speed_kmh(self, imp, elapsed_sec):
-        imp_per_15_sec = imp / elapsed_sec
-        rotation_per_sec = imp_per_15_sec / 2
+        rotation_per_sec = (imp / elapsed_sec) / 2
         km_per_hour = 1.761 / (1 + rotation_per_sec) + 3.813 * rotation_per_sec
         if km_per_hour < 1:
             km_per_hour = 0
         return round(km_per_hour, 1)
 
-    def __broadcast(self):
-        self.windspeed.notify_of_external_update(self.windspeed_kmh)
-
+    def cancel_update_level_task(self):
+        self.timer.stop()
 
 def run_server(port, gpio_number, description):
     eltakows_sensor = EltakoWsSensor(gpio_number, description)
@@ -73,6 +72,7 @@ def run_server(port, gpio_number, description):
         server.start()
     except KeyboardInterrupt:
         logging.debug('canceling the sensor update looping task')
+        eltakows_sensor.cancel_update_level_task()
         logging.info('stopping the server')
         server.stop()
         logging.info('done')
