@@ -19,7 +19,7 @@ class EltakoWsSensor(Thing):
         )
 
         self.gpio_number = gpio_number
-        self.slot_sec = 15
+        self.slot_sec = 20
         self.start_time = time.time()
         self.imp = 0
         GPIO.setmode(GPIO.BCM)
