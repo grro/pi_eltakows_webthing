@@ -40,10 +40,7 @@ class EltakoWsSensor(Thing):
                      }))
 
         logging.debug('starting the sensor update looping task')
-        self.timer = tornado.ioloop.PeriodicCallback(
-            self.measure,
-            3000
-        )
+        self.timer = tornado.ioloop.PeriodicCallback(self.measure, (15 * 1000))   # 15 sec
         self.timer.start()
 
     def __spin(self, channel):
