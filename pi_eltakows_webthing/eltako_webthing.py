@@ -2,6 +2,7 @@ from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import RPi.GPIO as GPIO
 import logging
 import time
+import os
 import tornado.ioloop
 
 
@@ -73,6 +74,9 @@ class EltakoWsSensor(Thing):
 
 
 def run_server(port, gpio_number, description):
+    log_level = os.environ.get("LOGLEVEL", "INFO")
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M:%S')
+
     eltakows_sensor = EltakoWsSensor(gpio_number, description)
     server = WebThingServer(SingleThing(eltakows_sensor), port=port)
     try:
