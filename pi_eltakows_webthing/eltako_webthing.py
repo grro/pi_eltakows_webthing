@@ -61,8 +61,9 @@ class EltakoWsSensor(Thing):
             km_per_hour = 0
         return round(km_per_hour, 1)
 
-    def cancel_update_level_task(self):
+    def cancel_measure_task(self):
         self.timer.stop()
+
 
 def run_server(port, gpio_number, description):
     eltakows_sensor = EltakoWsSensor(gpio_number, description)
@@ -71,9 +72,8 @@ def run_server(port, gpio_number, description):
         logging.info('starting the server')
         server.start()
     except KeyboardInterrupt:
-        logging.debug('canceling the sensor update looping task')
-        eltakows_sensor.cancel_update_level_task()
         logging.info('stopping the server')
+        eltakows_sensor.cancel_measure_task()
         server.stop()
         logging.info('done')
 
