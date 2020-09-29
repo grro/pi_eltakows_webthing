@@ -2,7 +2,6 @@ from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import RPi.GPIO as GPIO
 import logging
 import time
-import os
 import tornado.ioloop
 
 
@@ -48,24 +47,22 @@ class EltakoWsSensor(Thing):
         self.imp = self.imp + 1
 
     def __measure(self):
-        elapsed_sec = time.time() - self.start_time
-        if (self.imp > 0) and (elapsed_sec > 0):
-            try:
-                if self.imp > 0:
-                    windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
-                else:
-                    windspeed_kmh = 0
-                self.imp = 0
-                self.start_time = time.time()
-                logging.info('windspeed ' + str(windspeed_kmh))
-                self.windspeed.notify_of_external_update(windspeed_kmh)
-            except Exception as e:
-                logging.debug(str(e))
+        try:
+            windspeed_kmh = 0
+            elapsed_sec = time.time() - self.start_time
+            if (self.imp > 0) and (elapsed_sec > 0):
+                windspeed_kmh = self.__compute_speed_kmh(self.imp, elapsed_sec)
+            self.imp = 0
+            self.start_time = time.time()
+            logging.info('windspeed ' + str(windspeed_kmh))
+            self.windspeed.notify_of_external_update(windspeed_kmh)
+        except Exception as e:
+            logging.debug(str(e))
 
     def __compute_speed_kmh(self, imp, elapsed_sec):
         rotation_per_sec = (imp / elapsed_sec) / 2
         km_per_hour = 1.761 / (1 + rotation_per_sec) + 3.813 * rotation_per_sec
-        if km_per_hour < 1:
+        if km_per_hour < 2:
             km_per_hour = 0
         return round(km_per_hour, 1)
 
@@ -74,9 +71,6 @@ class EltakoWsSensor(Thing):
 
 
 def run_server(port, gpio_number, description):
-    log_level = os.environ.get("LOGLEVEL", "INFO")
-    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=log_level, datefmt='%Y-%m-%d %H:%M:%S')
-
     eltakows_sensor = EltakoWsSensor(gpio_number, description)
     server = WebThingServer(SingleThing(eltakows_sensor), port=port)
     try:
