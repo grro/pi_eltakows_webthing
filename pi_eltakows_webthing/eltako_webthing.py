@@ -26,7 +26,7 @@ class EltakoWsSensor(Thing):
         GPIO.setup(self.gpio_number, GPIO.IN)
         GPIO.add_event_detect(self.gpio_number, GPIO.RISING, callback=self.__spin, bouncetime=5)
 
-        self.timer = tornado.ioloop.PeriodicCallback(self.__measure, 10000)
+        self.timer = tornado.ioloop.PeriodicCallback(self.__measure, 5000)
 
         self.windspeed = Value(0.0)
         self.add_property(
