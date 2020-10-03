@@ -15,7 +15,7 @@ class EltakoWsSensor(Thing):
             self,
             'urn:dev:ops:eltakowsSensor-1',
             'Windsensor',
-            [],
+            ['MultiLevelSensor'],
             description
         )
 
