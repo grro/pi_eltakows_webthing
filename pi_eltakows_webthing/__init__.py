@@ -22,7 +22,7 @@ def main():
         print("running " + PACKAGENAME + " on " + args.hostname + "/" + str(args.port) + " (gpio " + str(args.gpio) + ")")
         run_server(args.hostname, int(args.port), int(args.gpio), DESCRIPTION)
     elif args.command == 'register':
-        print("register " + PACKAGENAME + " on " + args.hostname + "/" + str(args.port) + " (gpio " + str(args.gpio) + " and starting it")
+        print("register " + PACKAGENAME + " on " + args.hostname + "/" + str(args.port) + " (gpio " + str(args.gpio) + " and starting it)")
         register(PACKAGENAME, ENTRY_POINT, args.hostname, int(args.port), int(args.gpio))
     elif args.command == 'deregister':
         deregister(PACKAGENAME, int(args.port))
