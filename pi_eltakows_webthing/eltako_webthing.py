@@ -72,9 +72,9 @@ class EltakoWsSensor(Thing):
         self.timer.stop()
 
 
-def run_server(port, gpio_number, description):
+def run_server(hostname: str, port: int, gpio_number: int, description: str):
     eltakows_sensor = EltakoWsSensor(gpio_number, description)
-    server = WebThingServer(SingleThing(eltakows_sensor), port=port)
+    server = WebThingServer(SingleThing(eltakows_sensor), hostname=hostname, port=port)
     try:
         logging.info('starting the server')
         server.start()

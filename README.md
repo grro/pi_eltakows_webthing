@@ -24,14 +24,14 @@ sudo pip install pi_eltakows_webthing
 
 After this installation you may start the webthing http endpoint inside your python code or via command line using
 ```
-sudo eltakows --command listen --port 7050 --gpio 25
+sudo eltakows --command listen --hostname 192.168.0.23 --port 7050 --gpio 25
 ```
-Here, the webthing API will be bind to the local port 7050 and be connected to the Eltako windsensor reed switch
+Here, the webthing API will be bind to hostname 192.168.0.23 on the local port 7050 and be connected to the Eltako windsensor reed switch
 
 Alternatively to the *listen* command, you can use the *register* command to register and start the webthing service as systemd unit. 
 By doing this the webthing service will be started automatically on boot. Starting the server manually using the *listen* command is no longer necessary. 
 ```
-sudo eltakows --command register --port 7050 --gpio 25
+sudo eltakows --command register --hostname 192.168.0.23 --port 7050 --gpio 25
 ```  
 
 
