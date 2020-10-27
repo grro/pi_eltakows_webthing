@@ -14,7 +14,7 @@ class EltakoWsSensor(Thing):
         Thing.__init__(
             self,
             'urn:dev:ops:eltakowsSensor-1',
-            'Wind',
+            'Wind Sensor',
             ['MultiLevelSensor'],
             description
         )
