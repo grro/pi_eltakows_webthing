@@ -52,12 +52,13 @@ class EltakoWsSensor(Thing):
             elapsed_sec = time.time() - self.start_time
             if (self.num_raise_events > 0) and (elapsed_sec > 0):
                 windspeed_kmh = self.__compute_speed_kmh(self.num_raise_events, elapsed_sec)
+            logging.debug('windspeed ' + str(windspeed_kmh) + " (" + str(self.num_raise_events) + ' raise events/' + str(elapsed_sec) + ' sec)')
+            self.windspeed.notify_of_external_update(windspeed_kmh)
             self.num_raise_events = 0
             self.start_time = time.time()
-            logging.info('windspeed ' + str(windspeed_kmh) + " (" + str(self.num_raise_events) + ' raise events/' + str(elapsed_sec) + ' sec)')
-            self.windspeed.notify_of_external_update(windspeed_kmh)
+
         except Exception as e:
-            logging.debug(str(e))
+            logging.error(e)
 
     def __compute_speed_kmh(self, num_raise_events, elapsed_sec):
         rotation_per_sec = num_raise_events / elapsed_sec
