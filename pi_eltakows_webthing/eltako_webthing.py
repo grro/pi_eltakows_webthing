@@ -37,6 +37,8 @@ class EltakoWsSensor(Thing):
                          '@type': 'LevelProperty',
                          'title': 'Windspeed',
                          'type': 'number',
+                         'minimum': 0,
+                         'maximum': 200,
                          'description': 'The current windspeed',
                          'unit': 'km/h',
                          'readOnly': True,
