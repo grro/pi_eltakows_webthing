@@ -18,6 +18,7 @@ curl http://192.168.0.23:7050/properties
 Regarding the RaspberryPi/Eltako windsensor hardware setup and wiring please refer tutorials such as [Measure Wind Speed with Eltako Windsensor and Win10 IoT Core](https://www.hackster.io/daniel-kreuzhofer/measure-wind-speed-with-eltako-windsensor-and-win10-iot-core-e1e42a)
 
 To install this software you may use Docker or [PIP](https://realpython.com/what-is-pip/) package manager such as shown below
+
 **Docker approach**
 ```
 sudo docker run --privileged -p 7050:7050 -e gpio=25 grro/pi_eltakows_webthing:0.2.0
