@@ -35,7 +35,7 @@ setup(
         'webthings', 'home automation', 'Eltako', 'windsensor', 'windspeed', 'WS', 'raspberry', 'pi'
     ],
     install_requires=[
-        'webthing',
+        'webthing==0.15.0',
         'RPi.GPIO'
     ],
     classifiers=[
