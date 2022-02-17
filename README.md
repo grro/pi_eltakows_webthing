@@ -25,6 +25,8 @@ sudo docker run --privileged -p 7050:7050 -e gpio=25 grro/pi_eltakows_webthing:0
 ```
 
 **PIP approach**
+requires python 3.x
+
 ```
 sudo pip install pi_eltakows_webthing
 ```
