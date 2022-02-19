@@ -62,14 +62,14 @@ class EltakoWsSensor(Thing):
         except Exception as e:
             logging.error(e)
 
-    def __compute_speed_kmh(self, num_raise_events, elapsed_sec):
+    def __compute_speed_kmh(self, num_raise_events, elapsed_sec) -> int:
         rotation_per_sec = num_raise_events / elapsed_sec
         lowspeed_factor = 1.761
         highspeed_factor = 3.013
         km_per_hour = lowspeed_factor / (1 + rotation_per_sec) + highspeed_factor * rotation_per_sec
         if km_per_hour < 2:
             km_per_hour = 0
-        return round(km_per_hour, 1)
+        return int(round(km_per_hour, 0))
 
     def cancel_measure_task(self):
         self.timer.stop()
