@@ -34,6 +34,7 @@ class EltakoWsSensor:
         self.windspeed_kmh = 0
         self.__measure_period_sec = 3.3
         self.__10sec_buffer= RingBuffer(round(10/self.__measure_period_sec))
+        self.__30sec_buffer= RingBuffer(round(30/self.__measure_period_sec))
         self.__1min_buffer= RingBuffer(round(60/self.__measure_period_sec))
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.gpio_number, GPIO.IN)
@@ -78,6 +79,7 @@ class EltakoWsSensor:
             try:
                 self.windspeed_kmh = self.__measure()
                 self.__10sec_buffer.add(self.windspeed_kmh)
+                self.__30sec_buffer.add(self.windspeed_kmh)
                 self.__1min_buffer.add(self.windspeed_kmh)
                 self.__notify_listener()
             except Exception as e:
@@ -87,6 +89,10 @@ class EltakoWsSensor:
     @property
     def windspeed_kmh_10sec_granularity(self) -> int:
         return self.__10sec_buffer.median
+
+    @property
+    def windspeed_kmh_30sec_granularity(self) -> int:
+        return self.__30sec_buffer.median
 
     @property
     def windspeed_kmh_1min_granularity(self) -> int:
