@@ -1,16 +1,15 @@
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
-import RPi.GPIO as GPIO
 import logging
-import time
 import tornado.ioloop
+from eltako import EltakoWsSensor
 
 
-class EltakoWsSensor(Thing):
+class EltakoWsSensorThing(Thing):
 
     # regarding capabilities refer https://iot.mozilla.org/schemas
     # there is also another schema registry http://iotschema.org/docs/full.html not used by webthing
 
-    def __init__(self, gpio_number, description):
+    def __init__(self, sensor: EltakoWsSensor, description):
         Thing.__init__(
             self,
             'urn:dev:ops:eltakowsSensor-1',
@@ -19,71 +18,66 @@ class EltakoWsSensor(Thing):
             description
         )
 
-        self.gpio_number = gpio_number
-        self.start_time = time.time()
-        self.num_raise_events = 0
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.gpio_number, GPIO.IN)
-        GPIO.add_event_detect(self.gpio_number, GPIO.RISING, callback=self.__spin, bouncetime=5)
+        self.sensor = sensor
+        self.sensor.set_listener(self.on_value_changed)
+        self.ioloop = tornado.ioloop.IOLoop.current()
 
-        self.timer = tornado.ioloop.PeriodicCallback(self.__measure, 5000)
-
-        self.windspeed = Value(0.0)
+        self.windspeed = Value(self.sensor.windspeed_kmh)
         self.add_property(
             Property(self,
                      'windspeed',
                      self.windspeed,
                      metadata={
-                         '@type': 'LevelProperty',
                          'title': 'Windspeed',
                          'type': 'number',
-                         'minimum': 0,
-                         'maximum': 200,
                          'description': 'The current windspeed',
                          'unit': 'km/h',
                          'readOnly': True,
                      }))
-        self.timer.start()
 
-    def __spin(self, channel):
-        self.num_raise_events = self.num_raise_events + 1
+        self.windspeed_10sec = Value(self.sensor.windspeed_kmh_10sec_granularity)
+        self.add_property(
+            Property(self,
+                     'windspeed_10sec',
+                     self.windspeed_10sec,
+                     metadata={
+                         'title': 'windspeed_10sec',
+                         'type': 'number',
+                         'description': 'The current windspeed smoothen 10sec',
+                         'unit': 'km/h',
+                         'readOnly': True,
+                     }))
 
-    def __measure(self):
-        try:
-            windspeed_kmh = 0
-            elapsed_sec = time.time() - self.start_time
-            if (self.num_raise_events > 0) and (elapsed_sec > 0):
-                windspeed_kmh = self.__compute_speed_kmh(self.num_raise_events, elapsed_sec)
-            logging.debug('windspeed ' + str(windspeed_kmh) + " (" + str(self.num_raise_events) + ' raise events/' + str(elapsed_sec) + ' sec)')
-            self.windspeed.notify_of_external_update(windspeed_kmh)
-            self.num_raise_events = 0
-            self.start_time = time.time()
+        self.windspeed_1min = Value(self.sensor.windspeed_kmh_1min_granularity)
+        self.add_property(
+            Property(self,
+                     'windspeed_1min',
+                     self.windspeed_1min,
+                     metadata={
+                         'title': 'windspeed_1min',
+                         'type': 'number',
+                         'description': 'The current windspeed smoothen 1min',
+                         'unit': 'km/h',
+                         'readOnly': True,
+                     }))
 
-        except Exception as e:
-            logging.error(e)
+    def on_value_changed(self):
+        self.ioloop.add_callback(self.__on_value_changed)
 
-    def __compute_speed_kmh(self, num_raise_events, elapsed_sec) -> int:
-        rotation_per_sec = num_raise_events / elapsed_sec
-        lowspeed_factor = 1.761
-        highspeed_factor = 3.013
-        km_per_hour = lowspeed_factor / (1 + rotation_per_sec) + highspeed_factor * rotation_per_sec
-        if km_per_hour < 2:
-            km_per_hour = 0
-        return int(round(km_per_hour, 0))
-
-    def cancel_measure_task(self):
-        self.timer.stop()
+    def __on_value_changed(self):
+        self.windspeed.notify_of_external_update(self.sensor.windspeed_kmh)
+        self.windspeed_10sec.notify_of_external_update(self.sensor.windspeed_kmh_10sec_granularity)
+        self.windspeed_1min.notify_of_external_update(self.sensor.windspeed_kmh_1min_granularity)
 
 
 def run_server(port: int, gpio_number: int, description: str):
-    eltakows_sensor = EltakoWsSensor(gpio_number, description)
+    eltakows_sensor = EltakoWsSensorThing(EltakoWsSensor(gpio_number), description)
     server = WebThingServer(SingleThing(eltakows_sensor), port=port, disable_host_validation=True)
     try:
         logging.info('starting the server')
         server.start()
     except KeyboardInterrupt:
         logging.info('stopping the server')
-        eltakows_sensor.cancel_measure_task()
         server.stop()
         logging.info('done')
 
