@@ -18,12 +18,9 @@ class RingBuffer:
         self.pos += 1
 
     @property
-    def mean(self) -> int:
-        s = sum(self.buffer)
-        if s == 0:
-            return 0
-        else:
-            return int(s/len(self.buffer))
+    def median(self) -> int:
+        values = sorted(list(self.buffer))
+        return values[round(len(values) * 0.5)]
 
 
 
@@ -89,8 +86,8 @@ class EltakoWsSensor:
 
     @property
     def windspeed_kmh_10sec_granularity(self) -> int:
-        return self.__10sec_buffer.mean
+        return self.__10sec_buffer.median
 
     @property
     def windspeed_kmh_1min_granularity(self) -> int:
-        return self.__1min_buffer.mean
+        return self.__1min_buffer.median
