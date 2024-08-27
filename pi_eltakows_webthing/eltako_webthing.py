@@ -1,7 +1,7 @@
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 import logging
 import tornado.ioloop
-from eltako import EltakoWsSensor
+from pi_eltakows_webthing.eltako import EltakoWsSensor
 
 
 class EltakoWsSensorThing(Thing):
