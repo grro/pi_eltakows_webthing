@@ -4,6 +4,7 @@ import tornado.ioloop
 from pi_eltakows_webthing.eltako import EltakoWsSensor
 
 
+
 class EltakoWsSensorThing(Thing):
 
     # regarding capabilities refer https://iot.mozilla.org/schemas
