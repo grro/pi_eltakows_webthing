@@ -32,7 +32,7 @@ class EltakoWsSensor:
         self.start_time = time.time()
         self.num_raise_events = 0
         self.windspeed_kmh = 0
-        self.__measure_period_sec = 3.3
+        self.__measure_period_sec = 2
         self.__10sec_buffer= RingBuffer(round(10/self.__measure_period_sec))
         self.__30sec_buffer= RingBuffer(round(30/self.__measure_period_sec))
         self.__1min_buffer= RingBuffer(round(60/self.__measure_period_sec))
