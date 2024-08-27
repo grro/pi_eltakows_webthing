@@ -83,9 +83,9 @@ class EltakoWsSensor:
                 self.__10sec_buffer.add(self.windspeed_kmh)
                 self.__1min_buffer.add(self.windspeed_kmh)
                 self.__notify_listener()
-                sleep(self.__measure_period_sec)
             except Exception as e:
                 logging.error(str(e))
+            sleep(self.__measure_period_sec)
 
     @property
     def windspeed_kmh_10sec_granularity(self) -> int:
