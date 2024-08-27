@@ -12,7 +12,7 @@ class RingBuffer:
         self.pos = 0
 
     def add(self, value: int):
-        if self.pos > len(self.buffer):
+        if self.pos >= len(self.buffer):
             self.pos = 0
         self.buffer[self.pos] = value
         self.pos += 1
