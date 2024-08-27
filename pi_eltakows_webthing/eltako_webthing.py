@@ -36,6 +36,19 @@ class EltakoWsSensorThing(Thing):
                          'readOnly': True,
                      }))
 
+        self.windspeed_5sec = Value(self.sensor.windspeed_kmh_5sec_granularity)
+        self.add_property(
+            Property(self,
+                     'windspeed_5sec',
+                     self.windspeed_5sec,
+                     metadata={
+                         'title': 'windspeed_5sec',
+                         'type': 'number',
+                         'description': 'The current windspeed smoothen 5sec',
+                         'unit': 'km/h',
+                         'readOnly': True,
+                     }))
+
         self.windspeed_10sec = Value(self.sensor.windspeed_kmh_10sec_granularity)
         self.add_property(
             Property(self,
@@ -80,6 +93,7 @@ class EltakoWsSensorThing(Thing):
 
     def __on_value_changed(self):
         self.windspeed.notify_of_external_update(self.sensor.windspeed_kmh)
+        self.windspeed_5sec.notify_of_external_update(self.sensor.windspeed_kmh_5sec_granularity)
         self.windspeed_10sec.notify_of_external_update(self.sensor.windspeed_kmh_10sec_granularity)
         self.windspeed_30sec.notify_of_external_update(self.sensor.windspeed_kmh_30sec_granularity)
         self.windspeed_1min.notify_of_external_update(self.sensor.windspeed_kmh_1min_granularity)
