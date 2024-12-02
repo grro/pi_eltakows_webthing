@@ -1,7 +1,8 @@
-from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
+import sys
 import logging
 import tornado.ioloop
-from pi_eltakows_webthing.eltako import EltakoWsSensor
+from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
+from eltako import EltakoWsSensor
 
 
 
@@ -10,13 +11,13 @@ class EltakoWsSensorThing(Thing):
     # regarding capabilities refer https://iot.mozilla.org/schemas
     # there is also another schema registry http://iotschema.org/docs/full.html not used by webthing
 
-    def __init__(self, sensor: EltakoWsSensor, description):
+    def __init__(self, sensor: EltakoWsSensor):
         Thing.__init__(
             self,
             'urn:dev:ops:eltakowsSensor-1',
             'Wind Sensor',
             ['MultiLevelSensor'],
-            description
+            "wind sensor"
         )
 
         self.sensor = sensor
@@ -99,8 +100,8 @@ class EltakoWsSensorThing(Thing):
         self.windspeed_1min.notify_of_external_update(self.sensor.windspeed_kmh_1min_granularity)
 
 
-def run_server(port: int, gpio_number: int, description: str):
-    eltakows_sensor = EltakoWsSensorThing(EltakoWsSensor(gpio_number), description)
+def run_server(port: int, gpio_number: int):
+    eltakows_sensor = EltakoWsSensorThing(EltakoWsSensor(gpio_number))
     server = WebThingServer(SingleThing(eltakows_sensor), port=port, disable_host_validation=True)
     try:
         logging.info('starting the server')
@@ -110,3 +111,13 @@ def run_server(port: int, gpio_number: int, description: str):
         server.stop()
         logging.info('done')
 
+
+if __name__ == '__main__':
+    try:
+        logging.basicConfig(format='%(asctime)s %(name)-20s: %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+        logging.getLogger('tornado.access').setLevel(logging.ERROR)
+        logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+        run_server(int(sys.argv[1]), int(sys.argv[2]))
+    except Exception as e:
+        logging.error(str(e))
+        raise e
