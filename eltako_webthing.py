@@ -3,6 +3,7 @@ import logging
 import tornado.ioloop
 from webthing import (SingleThing, Property, Thing, Value, WebThingServer)
 from eltako import EltakoWsSensor
+from eltako_mcp import EltakoMCPServer
 
 
 
@@ -101,13 +102,17 @@ class EltakoWsSensorThing(Thing):
 
 
 def run_server(port: int, gpio_number: int):
-    eltakows_sensor = EltakoWsSensorThing(EltakoWsSensor(gpio_number))
-    server = WebThingServer(SingleThing(eltakows_sensor), port=port, disable_host_validation=True)
+    sensor = EltakoWsSensor(gpio_number)
+    mcp_server = EltakoMCPServer(port+2, sensor)
+    server = WebThingServer(SingleThing(EltakoWsSensorThing(sensor)), port=port, disable_host_validation=True)
+
     try:
+        mcp_server.start()
         logging.info('starting the server')
         server.start()
     except KeyboardInterrupt:
         logging.info('stopping the server')
+        mcp_server.stop()
         server.stop()
         logging.info('done')
 
